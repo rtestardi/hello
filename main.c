@@ -105,6 +105,7 @@ unsigned int oscillator_frequency;
 unsigned int cpu_frequency;
 unsigned int bus_frequency;
 
+// initialize clocks, caches, micromips, vectored interrupts, etc.
 void
 main_init()
 {
@@ -189,6 +190,11 @@ main()  // we're called directly by startup code
     TRISACLR = 0x410;
     LATASET = 0x410;
 
+    // set up the timer interrupt with a priority of 4
+    IEC0bits.T1IE = 1;
+    IPC1bits.T1IP = 4;
+    IPC1bits.T1IS = 0;
+    
     // configure timer 1 to interrupt every millisecond
     T1CONCLR = _T1CON_ON_MASK;
     T1CON = (1 << _T1CON_TCKPS_POSITION);  // 1:8 prescale
@@ -196,11 +202,6 @@ main()  // we're called directly by startup code
     PR1 = bus_frequency/8/1000 - 1;  // 1ms @ 120MHz
     T1CONSET = _T1CON_ON_MASK;
 
-    // set up the timer interrupt with a priority of 4
-    IEC0bits.T1IE = 1;
-    IPC1bits.T1IP = 4;
-    IPC1bits.T1IS = 0;
-    
     // main program loop...
     for (;;) {
         // wait a while
