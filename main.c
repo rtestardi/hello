@@ -1,6 +1,8 @@
 // *** main.c *********************************************************
-// this is the main program that is launched by startup.c; it just
-// runs the main application program loop.
+// this is the main program that is launched by startup code; it just
+// configures a timer isr and runs the main application program loop.
+
+// *** configuration bits ***
 
 #if defined(__32MK0512GPK064__) || defined(__32MK0512MCM064__)
 
@@ -79,6 +81,8 @@
 #include <sys/kmem.h>
 #include <sys/attribs.h>
 
+// *** timer 1 isr ***
+
 int ticks;
 
 void
@@ -88,16 +92,24 @@ timer_isr(void)
     // clear the interrupt flag
     IFS0CLR = _IFS0_T1IF_MASK;
 
+    // if half a second has passed...
     if (ticks++ % 500 == 0) {
+        // invert LED E3
         LATAINV = 0x400;  // 1Hz on red LED
     }
 }
 
-int
-main()  // we're called directly by startup.c
+// *** main init ***
+
+unsigned int oscillator_frequency;
+unsigned int cpu_frequency;
+unsigned int bus_frequency;
+
+void
+main_init()
 {
     register unsigned int val;
-    
+        
     /* unlock system for clock configuration */
     SYSKEY = 0x00000000;
     SYSKEY = 0xAA996655;
@@ -110,6 +122,14 @@ main()  // we're called directly by startup.c
     /* PLLIDIV = DIV_1 */
     /* PLLRANGE = RANGE_8_16_MHZ */
     UPLLCON = 0x31f0002;
+
+    // set (most) bus clocks to cpu clock
+    PB1DIVbits.PBDIV = 0;
+    PB2DIVbits.PBDIV = 0;
+    PB3DIVbits.PBDIV = 0;
+    PB4DIVbits.PBDIV = 0;
+    //PB5DIV = 1;
+    //PB6DIV = 3;
 
     /* Lock system since done with clock configuration */
     SYSKEY = 0x33333333;
@@ -131,6 +151,7 @@ main()  // we're called directly by startup.c
     // prevent JTAG from stealing our red LED after upgrade!
     CFGCONbits.JTAGEN = 0;
 
+    // configure shadow registers for isrs
     PRISS = 0x76543210;
 
     // turn on ISAONEXC so we take micromips interrupts and exceptions!
@@ -151,28 +172,28 @@ main()  // we're called directly by startup.c
     val = 0;
     asm volatile("ei    %0" : "=r"(val));
 
-    SYSKEY = 0xAA996655; // Write Key1 to SYSKEY
-    SYSKEY = 0x556699AA; // Write Key2 to SYSKEY
-    /* Peripheral Bus 1 is by default enabled, set its divisor */
-    PB1DIVbits.PBDIV = 0;
-    /* Peripheral Bus 2 is by default enabled, set its divisor */
-    PB2DIVbits.PBDIV = 0;
-    /* Peripheral Bus 3 is by default enabled, set its divisor */
-    PB3DIVbits.PBDIV = 0;
-    /* Peripheral Bus 4 is by default enabled, set its divisor */
-    PB4DIVbits.PBDIV = 0;
-    //PB5DIV = 1;
-    //PB6DIV = 3;
-    SYSKEY = 0;
+    oscillator_frequency = 12000000;  // 12 MHz
+    cpu_frequency = 120000000;  // 120 MHz
+    bus_frequency = 120000000;  // 120 MHz
+}
 
+// *** main ***
+
+int
+main()  // we're called directly by startup code
+{
+    // initialize clocks, caches, micromips, vectored interrupts, etc.
+    main_init();
+    
+    // configure LEDs E2 (A4) and E3 (A10)
     TRISACLR = 0x410;
     LATASET = 0x410;
 
-    // configure t1 to interrupt every millisecond
+    // configure timer 1 to interrupt every millisecond
     T1CONCLR = _T1CON_ON_MASK;
     T1CON = (1 << _T1CON_TCKPS_POSITION);  // 1:8 prescale
     TMR1 = 0;
-    PR1 = 120000000/8/1000 - 1;  // 1ms @ 120MHz
+    PR1 = bus_frequency/8/1000 - 1;  // 1ms @ 120MHz
     T1CONSET = _T1CON_ON_MASK;
 
     // set up the timer interrupt with a priority of 4
@@ -180,13 +201,16 @@ main()  // we're called directly by startup.c
     IPC1bits.T1IP = 4;
     IPC1bits.T1IS = 0;
     
+    // main program loop...
     for (;;) {
+        // wait a while
         volatile int i;
         for (i = 0; i < 1000000; i++) {
         }
+        
+        // invert LED E2
         LATAINV = 0x10;  // ~10Hz on green LED
     }
     
     return 0;
 }
-
