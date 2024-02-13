@@ -168,7 +168,7 @@ main()  // we're called directly by startup.c
     TRISACLR = 0x410;
     LATASET = 0x410;
 
-    // configure t1 to interrupt every ticks times per msec.
+    // configure t1 to interrupt every millisecond
     T1CONCLR = _T1CON_ON_MASK;
     T1CON = (1 << _T1CON_TCKPS_POSITION);  // 1:8 prescale
     TMR1 = 0;
