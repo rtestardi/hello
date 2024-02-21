@@ -105,7 +105,7 @@ unsigned int oscillator_frequency;
 unsigned int cpu_frequency;
 unsigned int bus_frequency;
 
-// initialize clocks, caches, micromips, vectored interrupts, etc.
+// initialize clocks, caches, microMIPS, vectored interrupts, etc.
 void
 main_init()
 {
@@ -116,7 +116,7 @@ main_init()
     SYSKEY = 0xAA996655;
     SYSKEY = 0x556699AA;
 
-    /* Configure UPLL */
+    /* Configure UPLL for 48 MHz USB*/
     /* UPOSCEN = UPLL */
     /* PLLODIV = DIV_8 */
     /* PLLMULT = MUL_32 */
@@ -152,10 +152,11 @@ main_init()
     // prevent JTAG from stealing our red LED after upgrade!
     CFGCONbits.JTAGEN = 0;
 
-    // configure shadow registers for isrs
+    // configure shadow registers (SRS) for all ISRs
     PRISS = 0x76543210;
 
     // turn on ISAONEXC so we take micromips interrupts and exceptions!
+    // N.B. we build microMIPS code for performance (including ISRs) but link with MIPS startup code (so the debugger works)
     asm("mfc0 %0,$16,3" :  "=r"(val));
     val |= 1<<16;
     asm("mtc0 %0,$16,3" :: "r" (val));
@@ -173,7 +174,7 @@ main_init()
     val = 0;
     asm volatile("ei    %0" : "=r"(val));
 
-    oscillator_frequency = 12000000;  // 12 MHz
+    oscillator_frequency = 12000000;  // board has 12 MHz Crystal
     cpu_frequency = 120000000;  // 120 MHz
     bus_frequency = 120000000;  // 120 MHz
 }
