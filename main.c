@@ -186,7 +186,8 @@ main()  // we're called directly by startup code
     // initialize clocks, caches, micromips, vectored interrupts, etc.
     main_init();
     
-    // configure LEDs E2 (A4) and E3 (A10)
+    // configure LEDs E2 (A4) and E3 (A10) for digital output
+    ANSELACLR = 0x410;
     TRISACLR = 0x410;
     LATASET = 0x410;
 
