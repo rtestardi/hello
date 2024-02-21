@@ -174,9 +174,10 @@ main_init()
     val = 0;
     asm volatile("ei    %0" : "=r"(val));
 
-    oscillator_frequency = 12000000;  // board has 12 MHz Crystal
-    cpu_frequency = 120000000;  // 120 MHz
-    bus_frequency = 120000000;  // 120 MHz
+    oscillator_frequency = 12000000;  // board has 12 MHz crystal
+    cpu_frequency = 120000000;  // 120 MHz cpu clock
+    bus_frequency = 120000000;  // 120 MHz bus clock
+    // and 48 MHz USB clock
 }
 
 // *** main ***
