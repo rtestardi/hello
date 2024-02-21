@@ -185,7 +185,7 @@ main_init()
 int
 main()  // we're called directly by startup code
 {
-    // initialize clocks, caches, micromips, vectored interrupts, etc.
+    // initialize clocks, caches, microMIPS, vectored interrupts, etc.
     main_init();
     
     // configure LEDs E2 (A4) and E3 (A10) for digital output
