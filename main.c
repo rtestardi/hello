@@ -81,24 +81,6 @@
 #include <sys/kmem.h>
 #include <sys/attribs.h>
 
-// *** timer 1 isr ***
-
-int ticks;
-
-void
-__ISR(_TIMER_1_VECTOR, IPL4SRS)
-timer_isr(void)
-{
-    // clear the interrupt flag
-    IFS0CLR = _IFS0_T1IF_MASK;
-
-    // if half a second has passed...
-    if (ticks++ % 500 == 0) {
-        // invert LED E3
-        LATAINV = 0x400;  // 1Hz on red LED
-    }
-}
-
 // *** main init ***
 
 unsigned int oscillator_frequency;
@@ -178,6 +160,24 @@ main_init()
     cpu_frequency = 120000000;  // 120 MHz cpu clock
     bus_frequency = 120000000;  // 120 MHz bus clock
     // and 48 MHz USB clock
+}
+
+// *** timer 1 isr ***
+
+int ticks;
+
+void
+__ISR(_TIMER_1_VECTOR, IPL4SRS)
+timer_isr(void)
+{
+    // clear the interrupt flag
+    IFS0CLR = _IFS0_T1IF_MASK;
+
+    // if half a second has passed...
+    if (ticks++ % 500 == 0) {
+        // invert LED E3
+        LATAINV = 0x400;  // 1Hz on red LED
+    }
 }
 
 // *** main ***
