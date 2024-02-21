@@ -156,7 +156,7 @@ main_init()
     PRISS = 0x76543210;
 
     // turn on ISAONEXC so we take micromips interrupts and exceptions!
-    // N.B. we build microMIPS code for performance (including ISRs) but link with MIPS startup code (so the debugger works)
+    // N.B. we compile microMIPS code for performance (including ISRs) but link with MIPS startup code (so the debugger works)
     asm("mfc0 %0,$16,3" :  "=r"(val));
     val |= 1<<16;
     asm("mtc0 %0,$16,3" :: "r" (val));
