@@ -156,9 +156,9 @@ main_init()
     PRISS = 0x76543210;
 
     // turn on ISAONEXC so we take micromips interrupts and exceptions!
-	asm("mfc0 %0,$16,3" :  "=r"(val));
-	val |= 1<<16;
-	asm("mtc0 %0,$16,3" :: "r" (val));
+    asm("mfc0 %0,$16,3" :  "=r"(val));
+    val |= 1<<16;
+    asm("mtc0 %0,$16,3" :: "r" (val));
 
     //INTEnableSystemMultiVectoredInt();
     // set the CP0 cause IV bit high
