@@ -162,7 +162,7 @@ main_init()
     // and 48 MHz USB clock
 }
 
-// *** timer 1 isr ***
+// *** timer 1 ISR ***
 
 int ticks;
 
