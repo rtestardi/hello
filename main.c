@@ -1,6 +1,6 @@
 // *** main.c *********************************************************
 // this is the main program that is launched by startup code; it just
-// configures a timer isr and runs the main program loop.
+// configures a timer ISR and runs the main program loop.
 
 // *** configuration bits ***
 
