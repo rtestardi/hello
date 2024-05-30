@@ -2,6 +2,10 @@
 // this is the main program that is launched by startup code; it just
 // configures a timer ISR and runs the main program loop.
 
+// Be sure to compile all files for microMIPS but to not link microMIPS
+// startup code!  We will transition from MIPS to microMIPS programmatically
+// before we take out first interrupt or exception.
+
 // *** configuration bits ***
 
 #if defined(__32MK0512GPK064__) || defined(__32MK0512MCM064__)
